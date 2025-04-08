@@ -1,0 +1,59 @@
+/* Estilos gerais */
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Estilizando cards */
+.card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: none;
+    margin-bottom: 20px;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+/* Estilos para badges de status */
+.badge {
+    font-weight: 500;
+    padding: 0.4em 0.6em;
+}
+
+/* Estilizando tabelas */
+.table th {
+    border-top: none;
+    font-weight: 600;
+}
+
+/* Estilos para o rodapé */
+.footer {
+    margin-top: 50px;
+    padding: 20px 0;
+    background-color: #f8f9fa;
+    border-top: 1px solid #dee2e6;
+}
+
+/* Estilos para livros */
+.book-item {
+    transition: transform 0.2s;
+}
+
+.book-item:hover {
+    transform: translateY(-5px);
+}
+
+/* Estilo para o botão de busca */
+.search-button {
+    background-color: #0d6efd;
+    color: white;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .card-title {
+        font-size: 1.25rem;
+    }
+}

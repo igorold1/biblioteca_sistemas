@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}Minhas Multas{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Minhas Multas</h1>
+
+{% if total_pendente > 0 %}
+<div class="alert alert-warning">
+    <h5 class="alert-heading">Você possui multas pendentes!</h5>
+    <p>Total pendente: <strong>R$ {{ total_pendente|round(2) }}</strong></p>
+    <p class="mb-0">Por favor, regularize sua situação para poder realizar novos empréstimos.</p>
+</div>
+{% endif %}
+
+<div class="card">
+    <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs">
+            <li class="nav-item">
+                <a class="nav-link active" id="pendentes-tab" data-bs-toggle="tab" href="#pendentes">Pendentes</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="pagas-tab" data-bs-toggle="tab" href="#pagas">Pagas</a>
+            </li>
+        </ul>
+    </div>
+    <div class="card-body">
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="pendentes">
+                {% set multas_pendentes = multas|rejectattr('pago')|list %}
+                
+                {% if multas_pendentes %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Livro</th>
+                                <th>Data Empréstimo</th>
+                                <th>Data Devolução Prevista</th>
+                                <th>Data Devolução Efetiva</th>
+                                <th>Dias de Atraso</th>
+                                <th>Valor</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for multa in multas_pendentes %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('livros.detalhes', id=multa.emprestimo.livro.id) }}">
+                                        {{ multa.emprestimo.livro.titulo }}
+                                    </a>
+                                </td>
+                                <td>{{ multa.emprestimo.data_emprestimo.strftime('%d/%m/%Y') }}</td>
+                                <td>{{ multa.emprestimo.data_devolucao_prevista.strftime('%d/%m/%Y') }}</td>
+                                <td>{{ multa.emprestimo.data_devolucao_efetiva.strftime('%d/%m/%Y') }}</td>
+                                <td>
+                                    {% set dias_atraso = (multa.emprestimo.data_devolucao_efetiva - multa.emprestimo.data_devolucao_prevista).days %}
+                                    {{ dias_atraso }} dias
+                                </td>
+                                <td>R$ {{ multa.valor|round(2) }}</td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('emprestimos.pagar_multa', multa_id=multa.id) }}">
+                                        <button type="submit" class="btn btn-sm btn-success">Pagar</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-success">
+                    Você não possui multas pendentes.
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="tab-pane fade" id="pagas">
+                {% set multas_pagas = multas|selectattr('pago')|list %}
+                
+                {% if multas_pagas %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Livro</th>
+                                <th>Data Empréstimo</th>
+                                <th>Dias de Atraso</th>
+                                <th>Valor</th>
+                                <th>Data Pagamento</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for multa in multas_pagas %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('livros.detalhes', id=multa.emprestimo.livro.id) }}">
+                                        {{ multa.emprestimo.livro.titulo }}
+                                    </a>
+                                </td>
+                                <td>{{ multa.emprestimo.data_emprestimo.strftime('%d/%m/%Y') }}</td>
+                                <td>
+                                    {% set dias_atraso = (multa.emprestimo.data_devolucao_efetiva - multa.emprestimo.data_devolucao_prevista).days %}
+                                    {{ dias_atraso }} dias
+                                </td>
+                                <td>R$ {{ multa.valor|round(2) }}</td>
+                                <td>{{ multa.data_pagamento.strftime('%d/%m/%Y') }}</td>
+                                <td><span class="badge bg-success">Paga</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    Você não tem histórico de multas pagas.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

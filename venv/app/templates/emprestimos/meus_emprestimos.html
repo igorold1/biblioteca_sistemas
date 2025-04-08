@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}Meus Empréstimos{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Meus Empréstimos</h1>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <ul class="nav nav-tabs card-header-tabs">
+            <li class="nav-item">
+                <a class="nav-link active" id="emprestados-tab" data-bs-toggle="tab" href="#emprestados">Ativos</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="devolvidos-tab" data-bs-toggle="tab" href="#devolvidos">Histórico</a>
+            </li>
+        </ul>
+    </div>
+    <div class="card-body">
+        <div class="tab-content">
+            <div class="tab-pane fade show active" id="emprestados">
+                {% set emprestimos_ativos = emprestimos|selectattr('status', 'equalto', 'emprestado')|list %}
+                {% set emprestimos_atrasados = emprestimos|selectattr('status', 'equalto', 'atrasado')|list %}
+                
+                {% if emprestimos_ativos or emprestimos_atrasados %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Livro</th>
+                                <th>Data Empréstimo</th>
+                                <th>Data Devolução</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for emprestimo in emprestimos_ativos + emprestimos_atrasados %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('livros.detalhes', id=emprestimo.livro.id) }}">
+                                        {{ emprestimo.livro.titulo }}
+                                    </a>
+                                </td>
+                                <td>{{ emprestimo.data_emprestimo.strftime('%d/%m/%Y') }}</td>
+                                <td>
+                                    {{ emprestimo.data_devolucao_prevista.strftime('%d/%m/%Y') }}
+                                    {% if emprestimo.status == 'atrasado' %}
+                                    <span class="badge bg-danger">Atrasado</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if emprestimo.status == 'emprestado' %}
+                                    <span class="badge bg-primary">Em andamento</span>
+                                    {% elif emprestimo.status == 'atrasado' %}
+                                    <span class="badge bg-danger">Atrasado</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <form method="POST" action="{{ url_for('emprestimos.devolver', emprestimo_id=emprestimo.id) }}" style="display: inline;">
+                                        <button type="submit" class="btn btn-sm btn-success">Devolver</button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    Você não possui empréstimos ativos no momento.
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="tab-pane fade" id="devolvidos">
+                {% set emprestimos_devolvidos = emprestimos|selectattr('status', 'equalto', 'devolvido')|list %}
+                
+                {% if emprestimos_devolvidos %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Livro</th>
+                                <th>Data Empréstimo</th>
+                                <th>Data Devolução Prevista</th>
+                                <th>Data Devolução Efetiva</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for emprestimo in emprestimos_devolvidos %}
+                            <tr>
+                                <td>
+                                    <a href="{{ url_for('livros.detalhes', id=emprestimo.livro.id) }}">
+                                        {{ emprestimo.livro.titulo }}
+                                    </a>
+                                </td>
+                                <td>{{ emprestimo.data_emprestimo.strftime('%d/%m/%Y') }}</td>
+                                <td>{{ emprestimo.data_devolucao_prevista.strftime('%d/%m/%Y') }}</td>
+                                <td>{{ emprestimo.data_devolucao_efetiva.strftime('%d/%m/%Y') }}</td>
+                                <td>
+                                    <span class="badge bg-success">Devolvido</span>
+                                    {% if emprestimo.multa %}
+                                    <span class="badge bg-warning text-dark">Multa</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    Você ainda não devolveu nenhum livro.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
