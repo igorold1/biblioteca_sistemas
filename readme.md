@@ -119,10 +119,6 @@ python -m unittest discover tests
   - valor (amount)
   - pago (paid status)
 
-## Contributors
-
-- Igor Oliveira
-
 ## License
 
 This project is licensed under the MIT License.
