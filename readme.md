@@ -1,5 +1,3 @@
-Based on the code analysis, here's a comprehensive README.md for your biblioteca_sistemas project:
-
 # Biblioteca Sistemas
 
 A library management system built with Flask that handles book loans, user management, and late return fines.
